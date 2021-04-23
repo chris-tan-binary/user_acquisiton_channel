@@ -9,6 +9,7 @@ The function itself can act like a documentation and process of how to group tho
 
 ### Function(utm_parse):
 __Input:__
+
 1)utm medium  
 2)utm source  
 3)utm campaign  
