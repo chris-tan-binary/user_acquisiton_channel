@@ -1,9 +1,9 @@
 # user_acquisiton_channel
 This repo is to document the process and code for parsing utm labels (medium, source, campaign name) into business related acquisition channel.
 
-From the recent usage of channel.
-I think for current stage it is enough to parse __utm_medium, utm_source and convert them into channel, sub-channel, platform, placement__
-And the main channel we would like to know now are __organic, direct, internal referral, affiliate, ppc, referral and others__
+Version 1:
+I think for current stage it is enough to parse __utm_medium, utm_source and convert them into channel, sub-channel, platform, placement__  
+The main channel we would like to know now are __organic, direct, internal referral, affiliate, ppc, referral and others__
 
 The function itself can act like a documentation and process of how to group those channels. In addition, any new requirement can be easily added into the code and change the grouping rule
 
