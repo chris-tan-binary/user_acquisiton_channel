@@ -31,6 +31,7 @@ source_groups AS (
                     WHEN regexp_contains(utm_source,'bing')                                                                                                                                                                  THEN 'bing'
                     WHEN regexp_contains(utm_source,'medium')                                                                                                                                                                THEN 'medium'
                     WHEN regexp_contains(utm_source,'elegram')                                                                                                                                                               THEN 'telegram'
+                    WHEN regexp_contains(utm_source,'direct')                                                                                                                                                                THEN 'direct'
                     ELSE utm_source
                      END AS source_group
           FROM ppc_map
@@ -40,9 +41,10 @@ medium_groups AS (
                CASE WHEN regexp_contains(utm_medium,'affiliate')                                                                     THEN 'affiliate'
                     WHEN regexp_contains(utm_medium,'ppc')                                                                           THEN 'ppc'
                     WHEN regexp_contains(utm_medium,'email')                                                                         THEN 'email'
+                    #direct above internal referral because we have utm_source = 'binary/deriv_direct', which should be direct, instead of internal_referral
+                    WHEN source_group = 'direct'                                                                                     THEN 'direct'                   
                     WHEN regexp_contains(source_group,'binary') OR regexp_contains(source_group,'deriv')                             THEN 'internal_referral'
                     WHEN source_group in ('sogou','baidu','unknown_search_website','yahoo','google','bing','alohafind.com','yandex') THEN 'organic'
-                    WHEN source_group = 'direct'                                                                                     THEN 'direct'
                     WHEN utm_medium IS NULL AND utm_source IS NOT NULL                                                               THEN 'referral'
                     ELSE 'other'
                      END AS medium_group
