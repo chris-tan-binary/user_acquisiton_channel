@@ -1,5 +1,5 @@
 # User Acquisition Channel (PPC)
-This repo is to document the process and code for parsing utm labels (medium, source, campaign name) into business related acquisition channel.
+This repo documents the process and code for parsing utm labels (medium, source, campaign name) into business related acquisition channel.
 
 ## Version 1:  
 I think for current stage it is enough to parse __utm_medium, utm_source and convert them into channel, sub-channel, platform, placement__  
