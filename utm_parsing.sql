@@ -30,7 +30,9 @@ source_groups AS (
                     WHEN regexp_contains(utm_source,'push')                                                                                                                                                                  THEN 'pushwhoosh'
                     WHEN regexp_contains(utm_source,'bing')                                                                                                                                                                  THEN 'bing'
                     WHEN regexp_contains(utm_source,'medium')                                                                                                                                                                THEN 'medium'
-                    WHEN regexp_contains(utm_source,'elegram')                                                                                                                                                               THEN 'telegram'
+                    WHEN regexp_contains(utm_source,'elegram')                                                                                                                                                               THEN 'telegram'                                                                                                                                                         
+                    WHEN regexp_contains(utm_source,'binary')                                                                                                                                                                THEN 'binary'
+                    WHEN regexp_contains(utm_source,'deriv')                                                                                                                                                                 THEN 'deriv'
                     WHEN regexp_contains(utm_source,'direct')                                                                                                                                                                THEN 'direct'
                     ELSE utm_source
                      END AS source_group
@@ -38,22 +40,21 @@ source_groups AS (
        ),
 medium_groups AS (
         SELECT *,
-               CASE WHEN regexp_contains(utm_medium,'affiliate')                                                                     THEN 'affiliate'
-                    WHEN regexp_contains(utm_medium,'ppc')                                                                           THEN 'ppc'
-                    WHEN regexp_contains(utm_medium,'email')                                                                         THEN 'email'
-                    #direct above internal referral because we have utm_source = 'binary/deriv_direct', which should be direct, instead of internal_referral
-                    WHEN source_group = 'direct'                                                                                     THEN 'direct'                   
-                    WHEN regexp_contains(source_group,'binary') OR regexp_contains(source_group,'deriv')                             THEN 'internal_referral'
-                    WHEN source_group in ('sogou','baidu','unknown_search_website','yahoo','google','bing','alohafind.com','yandex') THEN 'organic'
-                    WHEN utm_medium IS NULL AND utm_source IS NOT NULL                                                               THEN 'referral'
+               CASE WHEN regexp_contains(utm_medium,'affiliate')                                                                                           THEN 'affiliate'
+                    WHEN regexp_contains(utm_medium,'ppc')                                                                                                 THEN 'ppc'
+                    WHEN regexp_contains(utm_medium,'email')                                                                                               THEN 'email'
+                    WHEN source_group in ('sogou','baidu','unknown_search_website','yahoo','google','bing','alohafind.com','yandex')                       THEN 'organic'
+                    WHEN utm_medium IS NULL AND utm_campaign IS NULL AND utm_source IS NOT NULL AND source_group not in ('direct','binary','deriv')        THEN 'referral'                   
+                    WHEN utm_medium IS NULL AND utm_campaign IS NULL AND source_group in ('binary','deriv')                                                THEN 'internal_referral'
+                    WHEN utm_medium IS NULL AND utm_campaign IS NULL AND (utm_source IS NULL OR source_group in ('direct'))                                THEN 'direct'
                     ELSE 'other'
-                     END AS medium_group
+                    END AS medium_group
           FROM source_groups
        ),
        non_ppc AS (
         SELECT *,
                medium_group AS channel,
-               source_group AS SOURCE,
+               source_group AS source,
 
           FROM medium_groups
        ),
@@ -67,17 +68,17 @@ ppc AS (
                #first part OF utm_source AS source, second part AS placement 
                coalesce(regexp_extract(utm_medium, '(.*)-.*'),utm_medium) AS channel,
                coalesce(regexp_extract(utm_medium, '.*-(.*)'),utm_medium) AS subchannel,
-               coalesce(regexp_extract(utm_source, '(.*)-.*'),utm_source) AS SOURCE,
+               coalesce(regexp_extract(utm_source, '(.*)-.*'),utm_source) AS source,
                coalesce(regexp_extract(utm_source, '.*-(.*)'),utm_source) AS placement,
           FROM medium_groups
          WHERE medium_group = 'ppc'
        ) 
 #parse the ppc channel first, if it is non - ppc, parse it USING medium GROUP 
 
-SELECT non_ppc.* except(channel, SOURCE),
+SELECT non_ppc.* except(channel, source),
        coalesce(ppc.channel,non_ppc.channel) AS channel,
        subchannel,
-       coalesce(ppc.source,non_ppc.source) AS SOURCE,
+       coalesce(ppc.source,non_ppc.source) AS source,
        placement,
        non_ppc.utm_campaign AS campaign_name
   FROM non_ppc
