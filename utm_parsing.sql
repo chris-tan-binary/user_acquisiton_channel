@@ -45,8 +45,9 @@ medium_groups AS (
                     WHEN regexp_contains(utm_medium,'email')                                                                                               THEN 'email'
                     WHEN source_group in ('sogou','baidu','unknown_search_website','yahoo','google','bing','alohafind.com','yandex')                       THEN 'organic'
                     WHEN utm_medium IS NULL AND utm_campaign IS NULL AND utm_source IS NOT NULL AND source_group not in ('direct','binary','deriv')        THEN 'referral'                   
-                    WHEN utm_medium IS NULL AND utm_campaign IS NULL AND source_group in ('binary','deriv')                                                THEN 'internal_referral'
-                    WHEN utm_medium IS NULL AND utm_campaign IS NULL AND (utm_source IS NULL OR source_group in ('direct'))                                THEN 'direct'
+                    WHEN utm_medium IS NULL AND utm_campaign IS NULL AND source_group in ('binary')                                                        THEN 'internal_referral'
+                    WHEN utm_medium IS NULL AND utm_campaign IS NULL AND (utm_source IS NULL OR source_group in ('deriv','direct'))                        THEN 'direct'
+                    --internal referral is the campaign we tried to push user to signup on deriv from binary website banner
                     ELSE 'other'
                     END AS medium_group
           FROM source_groups
